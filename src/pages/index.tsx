@@ -1,4 +1,5 @@
 
+import { FormEvent, useState } from "react";
 import Image from "next/image";
 import { api } from "../lib/axios";
 
@@ -14,6 +15,29 @@ interface HomeProps {
 }
 
 export default function Home(props: HomeProps) {
+
+  const [poolTitle, setPoolTitle] = useState('')
+
+  async function createPool(event: FormEvent) {
+    event.preventDefault()
+
+    try {
+      const response = await api.post('/pools', {
+        title: poolTitle,
+      });
+
+      const { code } = response.data;
+      await navigator.clipboard.writeText(code)
+      setPoolTitle('') //cleaning inputText
+      alert('Bolão criado com sucesso! Código copiado para área de transferência!')
+
+    } catch (err) {
+      console.log(err)
+      alert('Falha ao cirar o bolão. Tente novamente.')
+    }
+
+  }
+
   return (
     <div className="max-w-[1124px] mx-auto h-screen grid grid-cols-2 items-center gap-28" >
       <main>
@@ -30,12 +54,14 @@ export default function Home(props: HomeProps) {
           </strong>
         </div>
 
-        <form className="mt-10 flex gap-2">
+        <form onSubmit={createPool} className="mt-10 flex gap-2">
           <input
             className="flex-1 px-6 py-4 rounded bg-gray-800 border border-gray-600 text-sm text-gray-200"
             type="text"
             required
             placeholder="Qual nome do seu bolão?"
+            onChange={event => setPoolTitle(event.target.value)}
+            value={poolTitle}
           />
 
           <button
@@ -49,7 +75,6 @@ export default function Home(props: HomeProps) {
         <p className="mt-4 text-sm text-gray-300 leading-relaxed">
           Após criar seu bolão, você receberá um código único que poderá usar para convidar outras pessoas 🚀
         </p>
-
 
         <div className="mt-10 pt-10 border-t border-gray-600 flex justify-between items-center text-gray-100">
 
@@ -72,7 +97,6 @@ export default function Home(props: HomeProps) {
           </div>
 
         </div>
-
 
       </main>
 
